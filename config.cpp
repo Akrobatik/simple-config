@@ -239,7 +239,7 @@ Value Value::Load(const std::string& file_path) {
           throw Exception("invalid config format");
         } else {
           if (!parents.back().second->is_array()) {
-            throw Exception("invalid config format");
+            *parents.back().second = array();
           }
 
           Array::size_type size = parents.back().second->as_array().size();
