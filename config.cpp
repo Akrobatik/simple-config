@@ -198,7 +198,7 @@ Value Value::Load(const std::string& file_path) {
             new_value[data_matches[1]] = string(data_matches[3]);
             Value* backup = &new_value[data_matches[1]];
           } else if (data_matches[2].compare("Number") == 0) {
-            if (data_matches[3].str().find(".") != std::string::npos) {
+            if (data_matches[3].str().find(".") == std::string::npos) {
               new_value[data_matches[1]] = number(std::stoll(data_matches[3]));
             } else {
               new_value[data_matches[1]] = number(std::stod(data_matches[3]));
@@ -216,7 +216,7 @@ Value Value::Load(const std::string& file_path) {
             (*parents.back().second)[data_matches[1]] = string(data_matches[3]);
             Value* backup = &(*parents.back().second)[data_matches[1]];
           } else if (data_matches[2].compare("Number") == 0) {
-            if (data_matches[3].str().find(".") != std::string::npos) {
+            if (data_matches[3].str().find(".") == std::string::npos) {
               (*parents.back().second)[data_matches[1]] = number(std::stoll(data_matches[3]));
             } else {
               (*parents.back().second)[data_matches[1]] = number(std::stod(data_matches[3]));
@@ -248,7 +248,7 @@ Value Value::Load(const std::string& file_path) {
             (*parents.back().second)[size] = string(data_matches[2]);
             Value* backup = &(*parents.back().second)[size];
           } else if (data_matches[1].compare("Number") == 0) {
-            if (data_matches[3].str().find(".") != std::string::npos) {
+            if (data_matches[3].str().find(".") == std::string::npos) {
               (*parents.back().second)[size] = number(std::stoll(data_matches[2]));
             } else {
               (*parents.back().second)[size] = number(std::stod(data_matches[2]));
