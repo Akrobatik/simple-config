@@ -21,22 +21,29 @@ Value::Value(std::unique_ptr<details::_Value> value) : value_(std::move(value)) 
 Value::Value(const Value& other) : value_(other.value_->Copy()) {}
 Value::Value(Value&& other) noexcept : value_(std::move(other.value_)) {}
 
-bool Value::is_null() const { return value_.get()->is_null(); }
-bool Value::is_string() const { return value_.get()->is_string(); }
-bool Value::is_number() const { return value_.get()->is_number(); }
-bool Value::is_boolean() const { return value_.get()->is_boolean(); }
-bool Value::is_array() const { return value_.get()->is_array(); }
-bool Value::is_object() const { return value_.get()->is_object(); }
+bool Value::is_null() const { return value_->is_null(); }
+bool Value::is_string() const { return value_->is_string(); }
+bool Value::is_number() const { return value_->is_number(); }
+bool Value::is_boolean() const { return value_->is_boolean(); }
+bool Value::is_array() const { return value_->is_array(); }
+bool Value::is_object() const { return value_->is_object(); }
 
-std::string Value::as_string() const { return value_.get()->as_string(); }
-int32_t Value::as_integer() const { return value_.get()->as_number().to_int32(); }
-double Value::as_double() const { return value_.get()->as_number().to_double(); }
-const Number& Value::as_number() const { return value_.get()->as_number(); }
-bool Value::as_boolean() const { return value_.get()->as_boolean(); }
-Array& Value::as_array() { return value_.get()->as_array(); }
-const Array& Value::as_array() const { return value_.get()->as_array(); }
-Object& Value::as_object() { return value_.get()->as_object(); }
-const Object& Value::as_object() const { return value_.get()->as_object(); }
+bool Value::has_field(const std::string& key) const { return value_->has_field(key); }
+bool Value::has_string_field(const std::string& key) const { return value_->has_field(key) && value_->as_object().at(key).is_string(); }
+bool Value::has_number_field(const std::string& key) const { return value_->has_field(key) && value_->as_object().at(key).is_number(); }
+bool Value::has_boolean_field(const std::string& key) const { return value_->has_field(key) && value_->as_object().at(key).is_boolean(); }
+bool Value::has_array_field(const std::string& key) const { return value_->has_field(key) && value_->as_object().at(key).is_array(); }
+bool Value::has_object_field(const std::string& key) const { return value_->has_field(key) && value_->as_object().at(key).is_object(); }
+
+std::string Value::as_string() const { return value_->as_string(); }
+int32_t Value::as_integer() const { return value_->as_number().to_int32(); }
+double Value::as_double() const { return value_->as_number().to_double(); }
+const Number& Value::as_number() const { return value_->as_number(); }
+bool Value::as_boolean() const { return value_->as_boolean(); }
+Array& Value::as_array() { return value_->as_array(); }
+const Array& Value::as_array() const { return value_->as_array(); }
+Object& Value::as_object() { return value_->as_object(); }
+const Object& Value::as_object() const { return value_->as_object(); }
 
 Value& Value::operator=(const Value& other) {
   if (this != &other) {
@@ -76,7 +83,7 @@ void Value::Save(const std::string& file_path) {
     return;
   }
 
-  value_.get()->Format(output_file, 0);
+  value_->Format(output_file, 0);
 
   output_file.close();
 }
@@ -198,7 +205,7 @@ Value Value::Load(const std::string& file_path) {
             new_value[data_matches[1]] = string(data_matches[3]);
             Value* backup = &new_value[data_matches[1]];
           } else if (data_matches[2].compare("Number") == 0) {
-            if (data_matches[3].str().find(".") == std::string::npos) {
+            if (data_matches[3].str().find(".") != std::string::npos) {
               new_value[data_matches[1]] = number(std::stoll(data_matches[3]));
             } else {
               new_value[data_matches[1]] = number(std::stod(data_matches[3]));
@@ -216,7 +223,7 @@ Value Value::Load(const std::string& file_path) {
             (*parents.back().second)[data_matches[1]] = string(data_matches[3]);
             Value* backup = &(*parents.back().second)[data_matches[1]];
           } else if (data_matches[2].compare("Number") == 0) {
-            if (data_matches[3].str().find(".") == std::string::npos) {
+            if (data_matches[3].str().find(".") != std::string::npos) {
               (*parents.back().second)[data_matches[1]] = number(std::stoll(data_matches[3]));
             } else {
               (*parents.back().second)[data_matches[1]] = number(std::stod(data_matches[3]));
@@ -239,7 +246,7 @@ Value Value::Load(const std::string& file_path) {
           throw Exception("invalid config format");
         } else {
           if (!parents.back().second->is_array()) {
-            *parents.back().second = array();
+            throw Exception("invalid config format");
           }
 
           Array::size_type size = parents.back().second->as_array().size();
@@ -248,7 +255,7 @@ Value Value::Load(const std::string& file_path) {
             (*parents.back().second)[size] = string(data_matches[2]);
             Value* backup = &(*parents.back().second)[size];
           } else if (data_matches[1].compare("Number") == 0) {
-            if (data_matches[3].str().find(".") == std::string::npos) {
+            if (data_matches[3].str().find(".") != std::string::npos) {
               (*parents.back().second)[size] = number(std::stoll(data_matches[2]));
             } else {
               (*parents.back().second)[size] = number(std::stod(data_matches[2]));

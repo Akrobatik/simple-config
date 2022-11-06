@@ -52,6 +52,13 @@ class Value {
   bool is_array() const;
   bool is_object() const;
 
+  bool has_field(const std::string& key) const;
+  bool has_string_field(const std::string& key) const;
+  bool has_number_field(const std::string& key) const;
+  bool has_boolean_field(const std::string& key) const;
+  bool has_array_field(const std::string& key) const;
+  bool has_object_field(const std::string& key) const;
+
   std::string as_string() const;
   int32_t as_integer() const;
   double as_double() const;
@@ -337,6 +344,8 @@ class _Value {
   virtual bool is_array() const { return false; }
   virtual bool is_object() const { return false; }
 
+  virtual bool has_field(const std::string& key) const { return false; }
+
   virtual std::string as_string() const { throw Exception("not a string"); };
   virtual const Number& as_number() const { throw Exception("not a number"); };
   virtual int as_integer() const { throw Exception("not a number"); };
@@ -497,14 +506,14 @@ class _Array : public _Value {
 
       if (element.is_array()) {
         out << indent_string << "<#Array>" << std::endl;
-        element.value_.get()->Format(out, indent + INDENT_WIDTH);
+        element.value_->Format(out, indent + INDENT_WIDTH);
         out << indent_string << "<Array#>" << std::endl;
       } else if (element.is_object()) {
         out << indent_string << "<#Object>" << std::endl;
-        element.value_.get()->Format(out, indent + INDENT_WIDTH);
+        element.value_->Format(out, indent + INDENT_WIDTH);
         out << indent_string << "<Object#>" << std::endl;
       } else {
-        element.value_.get()->Format(out, indent);
+        element.value_->Format(out, indent);
       }
     }
   }
@@ -516,9 +525,10 @@ class _Array : public _Value {
 class _Object : public _Value {
  public:
   _Object() : object_() {}
-  _Object(Object::StorageType elements) : object_(std::move(elements)) {}
+  _Object(Object::StorageType fields) : object_(std::move(fields)) {}
 
   virtual bool is_object() const { return true; }
+  virtual bool has_field(const std::string& key) const { return object_.FindByKey(key) != object_.end(); }
   virtual Object& as_object() { return object_; };
   virtual const Object& as_object() const { return object_; };
 
@@ -536,10 +546,10 @@ class _Object : public _Value {
 
       if (element.second.is_array() || element.second.is_object()) {
         out << indent_string << "<" << element.first << ">" << std::endl;
-        element.second.value_.get()->Format(out, indent + INDENT_WIDTH);
+        element.second.value_->Format(out, indent + INDENT_WIDTH);
         out << indent_string << "</" << element.first << ">" << std::endl;
       } else {
-        element.second.value_.get()->Format(out, indent, element.first);
+        element.second.value_->Format(out, indent, element.first);
       }
     }
   }
