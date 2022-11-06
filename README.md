@@ -1,5 +1,6 @@
 # simple-config
 simple custom config
+for studying abstract class, constructor and operator overloading
 
 ## Grammar
 ```
