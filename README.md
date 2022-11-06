@@ -17,7 +17,7 @@ Object        -> <name>(Content)</name>
 akrbt::config::Value v;
 v["akrbt"]["nationality"] = akrbt::config::Value::string("korea");
 v["akrbt"]["gender"] = akrbt::config::Value::string("male");
-v["akrbt"]["age"] = akrbt::config::Value::number(25);
+v["akrbt"]["age"] = akrbt::config::Value::number(15);
 v["akrbt"]["student"] = akrbt::config::Value::boolean(true);
 
 std::vector<akrbt::config::Value> pets;
